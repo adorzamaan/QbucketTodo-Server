@@ -2,6 +2,7 @@ const express = require("express");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const app = express();
 const cors = require("cors");
+const { query } = require("express");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -27,6 +28,23 @@ async function dbConnect() {
 
 dbConnect().catch((err) => console.log(err.message));
 
+const taskCollection = client.db("QbucketTodoDb").collection("tasks");
+
+app.post("/addtask", async (req, res) => {
+  try {
+    const task = req.body;
+    const result = await taskCollection.insertOne(task);
+    res.send(result);
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+app.get("/addtask", async (req, res) => {
+  const email = req.query.email;
+  const query = { email: email };
+  const result = await taskCollection.find(query).toArray();
+  res.send(result);
+});
 app.get("/", (req, res) => {
   res.send("Hello Im from Backend");
 });
