@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const cors = require("cors");
 const { query } = require("express");
@@ -39,6 +39,25 @@ app.post("/addtask", async (req, res) => {
     res.send(error.message);
   }
 });
+app.delete("/addtask/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: ObjectId(id) };
+  const result = await taskCollection.deleteOne(query);
+  res.send(result);
+});
+app.put("/addtask/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: ObjectId(id) };
+  const options = { upsert: true };
+  const updatedDoc = {
+    $set: {
+      todaytask: "complete",
+    },
+  };
+  const result = await taskCollection.updateOne(query, updatedDoc, options);
+  res.send(result);
+});
+
 app.get("/addtask", async (req, res) => {
   const email = req.query.email;
   const query = { email: email };
